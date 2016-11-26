@@ -2,27 +2,67 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import swing2swt.layout.BoxLayout;
 import org.eclipse.swt.widgets.Label;
+
+import java.util.ArrayList;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.jface.databinding.swt.SWTObservables;
 
 public class MainScreen {
+	private DataBindingContext m_bindingContext;
 
+	//Variables to show on the screen
+	//Used for generating MOs
+	public ArrayList<Integer> TextMOs = new ArrayList<Integer>();
+	public ArrayList<Integer> GeneratedMOs = new ArrayList<Integer>();  
+	public ArrayList<Integer> UsedMOs = new ArrayList<Integer>();
+	public ArrayList<Integer> Identity_L_List = new ArrayList<Integer>();
+	
+	//Used for signing MOs
+	public String SignedMO;
+	public String SignedBlindMO;
+	
+	//Used to send MO to Bob
+	public String BitVector;
+	
+	//Used to Submit MO
+	public boolean IsMOValid;
+	public String WhoCheated;
+	public int Bob_Bank_Balance = 500;
+	
 	protected Shell shell;
+	private Text Alice_Identity;
+	private Text Alice_Balance;
+	private Text Blinding_Factor;
 
+	Label Alice_MO_Number;
+	
 	/**
 	 * Launch the application.
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try {
-			MainScreen window = new MainScreen();
-			window.open();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Display display = Display.getDefault();
+		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+			public void run() {
+				try {
+					MainScreen window = new MainScreen();
+					window.open();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	/**
@@ -58,10 +98,11 @@ public class MainScreen {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Generate 100 MOs, store into a local variable and show on UI
-				GenerateMOs.Generate();
+				GenerateMOs.Generate(Alice_Identity.getText(), Blinding_Factor.getText(), TextMOs, GeneratedMOs, Identity_L_List);
+				Alice_MO_Number.setText(String.valueOf(TextMOs.size()));
 			}
 		});
-		btnAliceSendsMos.setBounds(38, 72, 203, 34);
+		btnAliceSendsMos.setBounds(171, 142, 203, 34);
 		btnAliceSendsMos.setText("Alice Sends MOs to Bank");
 		
 		Button btnBankSignsMo = new Button(shell, SWT.NONE);
@@ -74,7 +115,7 @@ public class MainScreen {
 				SignMO.Sign();
 			}
 		});
-		btnBankSignsMo.setBounds(38, 112, 203, 34);
+		btnBankSignsMo.setBounds(171, 258, 203, 34);
 		btnBankSignsMo.setText("Bank Signs MO and returns to Alice");
 		
 		Button btnAliceSendsMo = new Button(shell, SWT.NONE);
@@ -87,7 +128,7 @@ public class MainScreen {
 				SendMO.Send();
 			}
 		});
-		btnAliceSendsMo.setBounds(38, 152, 203, 34);
+		btnAliceSendsMo.setBounds(171, 348, 203, 34);
 		btnAliceSendsMo.setText("Alice Sends MO to Bob");
 		
 		Button btnBobSendsMo = new Button(shell, SWT.NONE);
@@ -103,8 +144,57 @@ public class MainScreen {
 				SubmitMO.Submit();
 			}
 		});
-		btnBobSendsMo.setBounds(38, 192, 203, 34);
+		btnBobSendsMo.setBounds(171, 443, 203, 34);
 		btnBobSendsMo.setText("Bob Sends MO to Bank");
 		
+		Label lblNewLabel = new Label(shell, SWT.NONE);
+		lblNewLabel.setBounds(27, 45, 84, 15);
+		lblNewLabel.setText("Alice's Identity:");
+		
+		Alice_Identity = new Text(shell, SWT.BORDER);
+		Alice_Identity.setBounds(117, 42, 106, 21);
+		Alice_Identity.setText("12345");
+		
+		Label lblAlicesBalance = new Label(shell, SWT.NONE);
+		lblAlicesBalance.setBounds(27, 74, 84, 15);
+		lblAlicesBalance.setText("Alice's Balance:");
+		
+		Alice_Balance = new Text(shell, SWT.BORDER);
+		Alice_Balance.setBounds(117, 68, 106, 21);
+		Alice_Balance.setText("500");
+		
+		Label lblBlindingFactor = new Label(shell, SWT.NONE);
+		lblBlindingFactor.setBounds(27, 101, 84, 15);
+		lblBlindingFactor.setText("Blinding Factor:");
+		
+		Blinding_Factor = new Text(shell, SWT.BORDER);
+		Blinding_Factor.setBounds(117, 95, 106, 21);
+		Blinding_Factor.setText("12345");
+		
+		Label lblAlicesMos = new Label(shell, SWT.NONE);
+		lblAlicesMos.setBounds(257, 45, 136, 15);
+		lblAlicesMos.setText("Number of Alice's MOs:");
+		
+		Button btnClickHereTo = new Button(shell, SWT.NONE);
+		btnClickHereTo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MO_Display window = new MO_Display("Alice's MOs", TextMOs, GeneratedMOs, Identity_L_List);
+				window.open();
+			}
+		});
+		btnClickHereTo.setBounds(257, 74, 230, 42);
+		btnClickHereTo.setText("Click here to view Alice's MO Details");
+		
+		Alice_MO_Number = new Label(shell, SWT.NONE);
+		Alice_MO_Number.setBounds(395, 45, 55, 15);
+		Alice_MO_Number.setText("0");
+		m_bindingContext = initDataBindings();
+		
+	}
+	protected DataBindingContext initDataBindings() {
+		DataBindingContext bindingContext = new DataBindingContext();
+		//
+		return bindingContext;
 	}
 }

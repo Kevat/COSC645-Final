@@ -1,0 +1,47 @@
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Label;
+
+import java.util.ArrayList;
+
+import org.eclipse.swt.SWT;
+
+public class MO_Display {
+
+	protected Shell shell;
+	public String Name;
+	
+	public MO_Display(String input, ArrayList<Integer> TextMOs, ArrayList<Integer> GeneratedMOs, ArrayList<Integer> Identity_L_List){
+		Name = input;
+	}
+	
+	/**
+	 * Open the window.
+	 */
+	public void open() {
+		Display display = Display.getDefault();
+		createContents();
+		shell.open();
+		shell.layout();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+	}
+
+	/**
+	 * Create contents of the window.
+	 */
+	protected void createContents() {
+		shell = new Shell();
+		shell.setSize(450, 300);
+		shell.setText("MO Display");
+		
+		Label lblMoDisplay = new Label(shell, SWT.CENTER);
+		lblMoDisplay.setBounds(139, 10, 174, 15);
+		lblMoDisplay.setText(Name);
+
+	}
+
+}

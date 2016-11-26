@@ -1,0 +1,7 @@
+import java.util.ArrayList;
+
+public class GenerateMOs {
+	public static void Generate(String Alice_Identity, String string2, ArrayList<Integer> textMOs, ArrayList<Integer> generatedMOs, ArrayList<Integer> identity_L_List) {
+		
+	}
+}

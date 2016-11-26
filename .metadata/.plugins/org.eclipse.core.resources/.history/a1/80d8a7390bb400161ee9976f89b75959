@@ -1,0 +1,70 @@
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Label;
+
+import java.util.ArrayList;
+
+import org.eclipse.swt.SWT;
+
+public class MO_Display {
+
+	protected Shell shell;
+	public String Name;
+	public ArrayList<Integer> TextMOs;
+	public ArrayList<Integer> GeneratedMOs;
+	public ArrayList<Integer> Identity_L_List;
+	
+	public MO_Display(String input){
+		Name = input;
+	}
+	
+	public MO_Display(String input, ArrayList<Integer> TextMOsIn, ArrayList<Integer> GeneratedMOsIn, ArrayList<Integer> Identity_L_List_In){
+		Name = input;
+		TextMOs = TextMOsIn;
+		GeneratedMOs = GeneratedMOsIn;
+		Identity_L_List = Identity_L_List_In;
+	}
+	
+	/**
+	 * Launch the application.
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+			MO_Display window = new MO_Display("");
+			window.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Open the window.
+	 */
+	public void open() {
+		Display display = Display.getDefault();
+		createContents();
+		shell.open();
+		shell.layout();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+	}
+
+	/**
+	 * Create contents of the window.
+	 */
+	protected void createContents() {
+		shell = new Shell();
+		shell.setSize(450, 300);
+		shell.setText("MO Display");
+		
+		Label lblMoDisplay = new Label(shell, SWT.CENTER);
+		lblMoDisplay.setBounds(139, 10, 174, 15);
+		lblMoDisplay.setText(Name);
+
+	}
+
+}
