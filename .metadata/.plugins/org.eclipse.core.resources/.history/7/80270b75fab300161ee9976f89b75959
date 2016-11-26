@@ -1,0 +1,78 @@
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import swing2swt.layout.BoxLayout;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.SWT;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+
+public class MainScreen {
+
+	protected Shell shell;
+
+	/**
+	 * Launch the application.
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+			MainScreen window = new MainScreen();
+			window.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Open the window.
+	 */
+	public void open() {
+		Display display = Display.getDefault();
+		createContents();
+		shell.open();
+		shell.layout();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+	}
+
+	/**
+	 * Create contents of the window.
+	 */
+	protected void createContents() {
+		shell = new Shell();
+		shell.setSize(552, 547);
+		shell.setText("Digital Cash Application");
+		
+		Label lblDigitalCash = new Label(shell, SWT.NONE);
+		lblDigitalCash.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.BOLD));
+		lblDigitalCash.setBounds(171, 10, 182, 21);
+		lblDigitalCash.setText("Digital Cash - COSC 645 Final");
+		
+		Button btnAliceSendsMos = new Button(shell, SWT.NONE);
+		btnAliceSendsMos.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+			}
+		});
+		btnAliceSendsMos.setBounds(38, 72, 203, 34);
+		btnAliceSendsMos.setText("Alice Sends MOs to Bank");
+		
+		Button btnBankSignsMo = new Button(shell, SWT.NONE);
+		btnBankSignsMo.setBounds(38, 112, 203, 34);
+		btnBankSignsMo.setText("Bank Signs MO and returns to Alice");
+		
+		Button btnAliceSendsMo = new Button(shell, SWT.NONE);
+		btnAliceSendsMo.setBounds(38, 152, 203, 34);
+		btnAliceSendsMo.setText("Alice Sends MO to Bob");
+		
+		Button btnBobSendsMo = new Button(shell, SWT.NONE);
+		btnBobSendsMo.setBounds(38, 192, 203, 34);
+		btnBobSendsMo.setText("Bob Sends MO to Bank");
+		
+	}
+}

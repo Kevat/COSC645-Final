@@ -1,0 +1,6 @@
+
+public class SendMO {
+	public void Send() {
+		
+	}
+}
