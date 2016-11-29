@@ -11,15 +11,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Text;
+import org.bouncycastle.crypto.params.RSABlindingParameters;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.core.databinding.beans.PojoProperties;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.swt.DisplayRealm;
 
 public class MainScreen {
 	private DataBindingContext m_bindingContext;
+	private SignMO m_signMO = new SignMO();
 
 	//Variables to show on the screen
 	//Used for generating MOs
@@ -28,9 +30,11 @@ public class MainScreen {
 	public ArrayList<Integer> UsedMOs = new ArrayList<Integer>();
 	public ArrayList<Integer> Identity_L_List = new ArrayList<Integer>();
 	
-	//Used for signing MOs
-	public String SignedMO;
-	public String SignedBlindMO;
+	//Used for bank signing MOs
+	private byte[] UnsignedMO = null;
+	private byte[] UnsignedBlindMO = null;
+	private byte[] SignedBlindMO = null;
+	private byte[] SignedMO = null;
 	
 	//Used to send MO to Bob
 	public String BitVector;
@@ -53,7 +57,7 @@ public class MainScreen {
 	 */
 	public static void main(String[] args) {
 		Display display = Display.getDefault();
-		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
+		Realm.runWithDefault(DisplayRealm.getRealm(display), new Runnable() {
 			public void run() {
 				try {
 					MainScreen window = new MainScreen();
@@ -100,6 +104,7 @@ public class MainScreen {
 				//Generate 100 MOs, store into a local variable and show on UI
 				GenerateMOs.Generate(Alice_Identity.getText(), Blinding_Factor.getText(), TextMOs, GeneratedMOs, Identity_L_List);
 				Alice_MO_Number.setText(String.valueOf(TextMOs.size()));
+				//Add blinding factor and send to bank
 			}
 		});
 		btnAliceSendsMos.setBounds(171, 142, 203, 34);
@@ -109,10 +114,16 @@ public class MainScreen {
 		btnBankSignsMo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//Should use Alice's Ls and Rs for 99 MOs and validate them
-				//Should sign the final MO
+				//Should use Alice's Blinding Factor, Ls, and Rs for 99 MOs and validate them
+				//Bank signs the final MO (blinded)
+				RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_signMO.getPublic());
+				UnsignedBlindMO = CommonFunctions.blindMessage(UnsignedMO, blindingParams, m_signMO.getPublic());
+				SignedBlindMO = m_signMO.Sign(UnsignedBlindMO);
 				//Show validated MOs and the signed MO on UI
-				SignMO.Sign();
+				//Unblind the bank signature
+				SignedMO = CommonFunctions.unblindMessage(SignedBlindMO, blindingParams);
+				//Verify bank signature
+				boolean sigVerified = m_signMO.Verify(UnsignedMO, SignedMO, m_signMO.getPublic());
 			}
 		});
 		btnBankSignsMo.setBounds(171, 258, 203, 34);
@@ -122,10 +133,11 @@ public class MainScreen {
 		btnAliceSendsMo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//Should ask Bob for bit vector
-				//Send the corresponding Ls and Rs along with MO
-				//Show what Bob receives on UI
+				//Alice sends MO to Bob
+				//Bob sends bit vector to Alice
 				SendMO.Send();
+				//Alice sends the corresponding Ls and Rs to Bob
+				//Show what Bob receives on UI
 			}
 		});
 		btnAliceSendsMo.setBounds(171, 348, 203, 34);
@@ -189,12 +201,15 @@ public class MainScreen {
 		Alice_MO_Number = new Label(shell, SWT.NONE);
 		Alice_MO_Number.setBounds(395, 45, 55, 15);
 		Alice_MO_Number.setText("0");
-		m_bindingContext = initDataBindings();
+		initDataBindings();
 		
 	}
-	protected DataBindingContext initDataBindings() {
-		DataBindingContext bindingContext = new DataBindingContext();
-		//
-		return bindingContext;
+	protected void initDataBindings() {
+		if(null != m_bindingContext) {
+			m_bindingContext.dispose();
+			m_bindingContext = null;
+		}
+		m_bindingContext = new DataBindingContext();
 	}
+
 }
