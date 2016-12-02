@@ -21,7 +21,7 @@ import org.eclipse.jface.databinding.swt.DisplayRealm;
 
 public class MainScreen {
 	private DataBindingContext m_bindingContext;
-	private SignMO m_signMO = new SignMO();
+	private Bank m_bank = new Bank();
 
 	//Variables to show on the screen
 	//Used for generating MOs
@@ -31,10 +31,11 @@ public class MainScreen {
 	public ArrayList<Integer> Identity_L_List = new ArrayList<Integer>();
 	
 	//Used for bank signing MOs
-	private byte[] UnsignedMO = null;
-	private byte[] UnsignedBlindMO = null;
-	private byte[] SignedBlindMO = null;
-	private byte[] SignedMO = null;
+	private MoneyOrder m_moneyOrder = null;
+	private MoneyOrder m_unsignedMO = null;
+	private MoneyOrder m_unsignedBlindMO = null;
+	private MoneyOrder m_signedBlindMO = null;
+	private MoneyOrder m_signedMO = null;
 	
 	//Used to send MO to Bob
 	public String BitVector;
@@ -102,7 +103,7 @@ public class MainScreen {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Generate 100 MOs, store into a local variable and show on UI
-				GenerateMOs.Generate(Alice_Identity.getText(), Blinding_Factor.getText(), TextMOs, GeneratedMOs, Identity_L_List);
+				UserAlice.GenerateMOs(Alice_Identity.getText(), Blinding_Factor.getText(), TextMOs, GeneratedMOs, Identity_L_List);
 				Alice_MO_Number.setText(String.valueOf(TextMOs.size()));
 				//Add blinding factor and send to bank
 			}
@@ -116,14 +117,14 @@ public class MainScreen {
 			public void widgetSelected(SelectionEvent e) {
 				//Should use Alice's Blinding Factor, Ls, and Rs for 99 MOs and validate them
 				//Bank signs the final MO (blinded)
-				RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_signMO.getPublic());
-				UnsignedBlindMO = CommonFunctions.blindMessage(UnsignedMO, blindingParams, m_signMO.getPublic());
-				SignedBlindMO = m_signMO.Sign(UnsignedBlindMO);
+				RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_bank.getPublic());
+				m_unsignedBlindMO = new MoneyOrder(CommonFunctions.blindMessage(m_unsignedMO.getData(), blindingParams, m_bank.getPublic()));
+				m_signedBlindMO = new MoneyOrder(m_bank.Sign(m_unsignedBlindMO.getData()));
 				//Show validated MOs and the signed MO on UI
 				//Unblind the bank signature
-				SignedMO = CommonFunctions.unblindMessage(SignedBlindMO, blindingParams);
+				m_signedMO = new MoneyOrder(CommonFunctions.unblindMessage(m_signedBlindMO.getData(), blindingParams));
 				//Verify bank signature
-				boolean sigVerified = m_signMO.Verify(UnsignedMO, SignedMO, m_signMO.getPublic());
+				boolean sigVerified = m_bank.Verify(m_unsignedMO.getData(), m_signedMO.getData(), m_bank.getPublic());
 			}
 		});
 		btnBankSignsMo.setBounds(171, 258, 203, 34);
@@ -135,7 +136,7 @@ public class MainScreen {
 			public void widgetSelected(SelectionEvent e) {
 				//Alice sends MO to Bob
 				//Bob sends bit vector to Alice
-				SendMO.Send();
+//				SendMO.Send();
 				//Alice sends the corresponding Ls and Rs to Bob
 				//Show what Bob receives on UI
 			}
@@ -153,7 +154,7 @@ public class MainScreen {
 				//Validate that the same serial number was not used before
 				//If same serial number was used before, try to find Alice using Ls and Rs
 				//Show output on UI
-				SubmitMO.Submit();
+				m_moneyOrder.Submit();
 			}
 		});
 		btnBobSendsMo.setBounds(171, 443, 203, 34);
