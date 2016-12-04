@@ -1,0 +1,10 @@
+import java.util.ArrayList;
+
+public class UserAlice {
+	
+	public static void GenerateMOs(String aliceIdentity, String blindFactor,
+			ArrayList<Integer> TextMOs, ArrayList<Integer> GeneratedMOs,
+			ArrayList<Integer> Identity_L_List) {
+		MoneyOrder.Generate(aliceIdentity, blindFactor, TextMOs, GeneratedMOs, Identity_L_List);
+	}
+}

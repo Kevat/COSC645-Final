@@ -1,8 +1,6 @@
-import java.util.ArrayList;
-
 public class MoneyOrder {
-	byte[] serialNumber = new byte[10];
-	byte[] amount = new byte[10];
+	byte[] serialNumber = new byte[20];
+	byte[] amount = new byte[20];
 	byte[] data = new byte[20];
 
 	public MoneyOrder(byte[] newData) {
@@ -22,15 +20,6 @@ public class MoneyOrder {
 		// Populate data
 		System.arraycopy(newSN, 0, data, 0, 10);
 		System.arraycopy(newAmount, 0, data, 10, 10);
-	}
-
-	public static void Generate(String Alice_Identity, String BlindingFactor, ArrayList<Integer> textMOs, ArrayList<Integer> generatedMOs, ArrayList<Integer> identity_L_List) {
-		for (int i = 0; i < 100; i++)
-		{
-			textMOs.add(i);
-			generatedMOs.add(i);
-			identity_L_List.add(i);
-		}
 	}
 	
 	public byte[] getData() {

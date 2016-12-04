@@ -2,6 +2,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
@@ -13,16 +14,16 @@ public class MO_Display {
 
 	protected Shell shell;
 	public String Name;
-	public ArrayList<Integer> TextMOs;
-	public ArrayList<Integer> GeneratedMOs;
-	public ArrayList<Integer> Identity_L_List;
+	public ArrayList<BigInteger> TextMOs;
+	public ArrayList<BigInteger> GeneratedMOs;
+	public ArrayList<BigInteger> Identity_L_List;
 	private Table table;
 	
 	public MO_Display(String input){
 		Name = input;
 	}
 	
-	public MO_Display(String input, ArrayList<Integer> TextMOsIn, ArrayList<Integer> GeneratedMOsIn, ArrayList<Integer> Identity_L_List_In){
+	public MO_Display(String input, ArrayList<BigInteger> TextMOsIn, ArrayList<BigInteger> GeneratedMOsIn, ArrayList<BigInteger> Identity_L_List_In){
 		Name = input;
 		TextMOs = TextMOsIn;
 		GeneratedMOs = GeneratedMOsIn;

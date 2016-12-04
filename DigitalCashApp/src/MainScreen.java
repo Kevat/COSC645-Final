@@ -3,6 +3,7 @@ import org.eclipse.swt.widgets.Shell;
 import swing2swt.layout.BoxLayout;
 import org.eclipse.swt.widgets.Label;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
@@ -25,10 +26,10 @@ public class MainScreen {
 
 	//Variables to show on the screen
 	//Used for generating MOs
-	public ArrayList<Integer> TextMOs = new ArrayList<Integer>();
-	public ArrayList<Integer> GeneratedMOs = new ArrayList<Integer>();  
-	public ArrayList<Integer> UsedMOs = new ArrayList<Integer>();
-	public ArrayList<Integer> Identity_L_List = new ArrayList<Integer>();
+	public ArrayList<BigInteger> TextMOs = new ArrayList<BigInteger>();
+	public ArrayList<BigInteger> GeneratedMOs = new ArrayList<BigInteger>();  
+	public ArrayList<BigInteger> UsedMOs = new ArrayList<BigInteger>();
+	public ArrayList<BigInteger> Identity_L_List = new ArrayList<BigInteger>();
 	
 	//Used for bank signing MOs
 	private MoneyOrder m_moneyOrder = null;
@@ -103,7 +104,7 @@ public class MainScreen {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Generate 100 MOs, store into a local variable and show on UI
-				UserAlice.GenerateMOs(Alice_Identity.getText(), Blinding_Factor.getText(), TextMOs, GeneratedMOs, Identity_L_List);
+				UserAlice.GenerateMOs(Alice_Identity.getText(), Blinding_Factor.getText(), TextMOs, GeneratedMOs, Identity_L_List, m_bank);
 				Alice_MO_Number.setText(String.valueOf(TextMOs.size()));
 				//Add blinding factor and send to bank
 			}
