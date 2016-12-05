@@ -1,16 +1,17 @@
 import java.math.BigInteger;
 
-import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.engines.RSABlindingEngine;
+import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.generators.RSABlindingFactorGenerator;
 import org.bouncycastle.crypto.params.RSABlindingParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.signers.PSSSigner;
 
 public class CommonFunctions {
+
 	public static int GetIntFromLetter(char letter)
 	{
 		return Character.getNumericValue(letter);
@@ -54,11 +55,11 @@ public class CommonFunctions {
 	
 	public static byte[] blindMessage(byte[] message, RSABlindingParameters blindingParams, RSAKeyParameters pubKey) {
 		byte[] blindedMsg = null;
-		PSSSigner signer = new PSSSigner(new RSABlindingEngine(), new SHA1Digest(), 20);
-		signer.init(true, blindingParams);
-		signer.update(message, 0, message.length);
+		PSSSigner blindSigner = new PSSSigner(new RSABlindingEngine(), new SHA1Digest(), 20);
+		blindSigner.init(true, blindingParams);
+		blindSigner.update(message, 0, message.length);
 		try {
-			blindedMsg = signer.generateSignature();
+			blindedMsg = blindSigner.generateSignature();
 		} catch (DataLengthException | CryptoException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -70,5 +71,12 @@ public class CommonFunctions {
 		RSABlindingEngine blindingEngine = new RSABlindingEngine();
 		blindingEngine.init(false, blindingParams);
 		return blindingEngine.processBlock(signature, 0, signature.length);
+	}
+	
+	public static boolean Verify(byte[] message, byte[] signature, RSAKeyParameters pubKey) {
+		PSSSigner signer = new PSSSigner(new RSAEngine(), new SHA1Digest(), 20);
+		signer.init(false,  pubKey);
+		signer.update(message, 0, message.length);
+		return signer.verifySignature(signature);
 	}
 }

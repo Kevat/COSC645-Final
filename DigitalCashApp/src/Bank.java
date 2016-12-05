@@ -1,15 +1,14 @@
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSABlindingParameters;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.bouncycastle.crypto.signers.PSSSigner;
 
 public class Bank {
 	private RSAKeyPairGenerator m_generator;
@@ -32,37 +31,37 @@ public class Bank {
 
 		return engine.processBlock(message, 0, message.length);
 	}
-		
-	public boolean Verify(byte[] message, byte[] signature, RSAKeyParameters pubKey) {
-		PSSSigner signer = new PSSSigner(new RSAEngine(), new SHA1Digest(), 20);
-		signer.init(false,  pubKey);
-		signer.update(message, 0, message.length);
-		return signer.verifySignature(signature);
-	}
 
-	public Integer VerifyAndSignMOs(ArrayList<BigInteger> generatedMOs, ArrayList<BigInteger> textMOs, ArrayList<RSABlindingParameters> blindingParams,
-			MoneyOrder m_signedBlindMO) {
+	public byte [] VerifyAndSignMOs(ArrayList<MoneyOrder> generatedMOs, ArrayList<byte []> blindedMOs,
+			ArrayList<RSABlindingParameters> blindingParams, ArrayList<Integer> toSignMO) {
 		//Bank decides which MO to sign
+		byte [] toSignBlindMO = null;
 		Integer MOToSign = (int)(99 * Math.random());
 		boolean isValid = true;
 		for (int i = 0; i<100; i++)
 		{
+			MoneyOrder unblindedMO = null;
 			if (i != MOToSign)
 			{
-				//
-				BigInteger unblindedMO =  new BigInteger(CommonFunctions.unblindMessage(generatedMOs.get(i).toByteArray(), blindingParams.get(i)));
-				if (unblindedMO.compareTo(textMOs.get(i)) == 0)
-				{
-					String test = "";
-				}
+				// Unblind MO and verify data
+				/*
+				unblindedMO = new MoneyOrder(CommonFunctions.unblindMessage(blindedMOs.get(i), blindingParams.get(i)));
+				isValid = Arrays.equals(unblindedMO.getData(), generatedMOs.get(i).getData());
+				if (false == isValid) {
+					System.out.println("Alice is a cheater");
+					return null;
+				}*/
+			} else {
+				toSignMO.add(i);
+				toSignBlindMO = blindedMOs.get(i);
 			}
+		}
+
+		if(null == toSignBlindMO) {
+			return null;
 		}
 		
 		//Bank signs the final MO (blinded)
-		//RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_bank.getPublic());
-		//m_unsignedBlindMO = new MoneyOrder(CommonFunctions.blindMessage(m_unsignedMO.getData(), blindingParams, m_bank.getPublic()));
-		//m_signedBlindMO = new MoneyOrder(this.Sign(m_unsignedBlindMO.getData()));
-		
-		return null;
+		return Sign(toSignBlindMO);
 	}
 }

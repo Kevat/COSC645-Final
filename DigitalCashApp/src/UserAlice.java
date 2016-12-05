@@ -3,38 +3,32 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import org.bouncycastle.crypto.params.RSABlindingParameters;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
 
 public class UserAlice {
 	
-	private static Integer Min = 1;
+//	private static Integer Min = 1;
 	private static Integer Max = 100000;
 	
-	public static void GenerateMOs(String aliceIdentity, ArrayList<BigInteger> TextMOs, ArrayList<BigInteger> GeneratedMOs,
-			ArrayList<RSABlindingParameters> BlindingFactors_List, ArrayList<BigInteger> Identity_L_List, Bank m_bank) {
+	public static void GenerateMOs(String aliceIdentity, ArrayList<MoneyOrder> GeneratedMOs,
+			ArrayList<RSABlindingParameters> BlindingFactors_List, ArrayList<byte []> BlindedMOs,
+			ArrayList<BigInteger> Identity_L_List, RSAKeyParameters bankPublicKey) {
 
 		for (int i = 0; i < 100; i++)
 		{
 			MoneyOrder newMO = GenerateTextMO();
-			BigInteger newMOInt = new BigInteger(newMO.getData());
-			TextMOs.add(newMOInt);
-			
-			
-			//NOTE: These were written before I figured out the bouncy castle functions
-			//Everything below should be replaced with the bouncy castle functions
-			//We should still create a new array list to hold the blinding factors.
-			
+			GeneratedMOs.add(newMO);
 			
 			//Get blinding factor
-			RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_bank.getPublic());
+			RSABlindingParameters blindingParams = CommonFunctions.blindFactor(bankPublicKey);
 						
 			//Store blinding factor in its own array
 			BlindingFactors_List.add(blindingParams);
 			
 			//Blind the MO
-			MoneyOrder m_unsignedBlindMO = new MoneyOrder(CommonFunctions.blindMessage(newMO.getData(), blindingParams, m_bank.getPublic()));
-			MoneyOrder m_unsignedTextMO = new MoneyOrder(CommonFunctions.unblindMessage(m_unsignedBlindMO.getData(), blindingParams));
+			byte [] unsignedBlindedMO = CommonFunctions.blindMessage(newMO.getData(), blindingParams, bankPublicKey);
 			//Add to list of generated MOs
-			GeneratedMOs.add(new BigInteger(m_unsignedBlindMO.getData()));
+			BlindedMOs.add(unsignedBlindedMO);
 			
 			//Add identity strings??
 			//identity_L_List.add(i);

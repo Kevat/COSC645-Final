@@ -2,25 +2,20 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.osgi_3.11.1.v20160708-1632.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.osgi_3.11.1.v20160708-1632.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.commands_3.8.0.v20160316-1921.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.commands_3.8.0.v20160316-1921.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.equinox.common_3.8.0.v20160509-1230.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.equinox.common_3.8.0.v20160509-1230.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.equinox.registry_3.6.100.v20160223-2218.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.equinox.registry_3.6.100.v20160223-2218.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.runtime_3.12.0.v20160606-1342.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.runtime_3.12.0.v20160606-1342.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.text_3.6.0.v20160503-1849.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.text_3.6.0.v20160503-1849.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.swt.win32.win32.x86_64_3.105.1.v20160907-0248.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.swt.win32.win32.x86_64_3.105.1.v20160907-0248.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.jface_3.12.0.v20160518-1929.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.jface_3.12.0.v20160518-1929.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.jface.text_3.11.1.v20160819-1517.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.jface.text_3.11.1.v20160819-1517.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.ui.workbench_3.108.1.v20160819-2118.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.ui.workbench_3.108.1.v20160819-2118.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/com.ibm.icu_56.1.0.v201601250100.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/com.ibm.icu_56.1.0.v201601250100.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.ui.forms_3.7.0.v20160518-1929.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.ui.forms_3.7.0.v20160518-1929.jar"/>
 	<classpathentry exported="true" kind="lib" path="swing2swt.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding_1.6.0.v20160412-0910.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding_1.6.0.v20160412-0910.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding.beans_1.3.100.v20160509-1025.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding.beans_1.3.100.v20160509-1025.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding.observable_1.6.0.v20160511-1747.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding.observable_1.6.0.v20160511-1747.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding.property_1.6.0.v20160427-0852.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.core.databinding.property_1.6.0.v20160427-0852.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.jface.databinding_1.8.0.v20160420-2231.jar" sourcepath="C:/Users/Kevat/.p2/pool/plugins/org.eclipse.jface.databinding_1.8.0.v20160420-2231.jar"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME"/>
-	<classpathentry kind="lib" path="bcprov-jdk15on-155.jar"/>
+	<classpathentry exported="true" kind="var" path="ECLIPSE_HOME"/>
+	<classpathentry exported="true" kind="lib" path="bcprov-jdk15on-155.jar"/>
+	<classpathentry exported="true" kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.swt.win32.win32.x86_64_3.104.2.v20160212-1350.jar"/>
+	<classpathentry exported="true" kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.databinding_1.5.0.v20150422-0725.jar"/>
+	<classpathentry exported="true" kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.databinding.observable_1.5.0.v20150422-0725.jar"/>
+	<classpathentry exported="true" kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.jface.databinding_1.7.0.v20150406-2148.jar"/>
+	<classpathentry exported="true" kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.databinding.beans_1.3.0.v20150422-0725.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/com.ibm.icu_54.1.1.v201501272100.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.core.commands_3.7.0.v20150422-0725.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.jface_3.11.1.v20160128-1644.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.jface.text_3.10.0.v20150603-1752.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.ui.forms_3.6.200.v20150506-2029.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.ui.workbench_3.107.1.v20160120-2131.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

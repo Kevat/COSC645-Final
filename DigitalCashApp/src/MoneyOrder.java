@@ -1,15 +1,21 @@
-public class MoneyOrder {
-	byte[] serialNumber = new byte[20];
-	byte[] amount = new byte[20];
-	byte[] data = new byte[20];
+import org.bouncycastle.util.encoders.Hex;
 
-	public MoneyOrder(byte[] newData) {
+public class MoneyOrder {
+	byte[] serialNumber = new byte[10];
+	byte[] amount = new byte[10];
+	private byte[] data = new byte[20];
+	byte[] hex = null;
+
+	public MoneyOrder(byte[] newHexData) {
+		hex = newHexData;
 		// Populate data
-		System.arraycopy(newData, 0, data, 0, 20);
+		byte [] tmpData = Hex.decode(newHexData);
+		System.arraycopy(tmpData, 0, data, 0, 20);
 		// Populate serialNumber
-		System.arraycopy(newData, 0, serialNumber, 0, 10);
+		System.arraycopy(newHexData, 0, serialNumber, 0, 10);
 		// Populate amount
-		System.arraycopy(newData, 10, amount, 0, 10);
+		System.arraycopy(newHexData, 10, amount, 0, 10);
+		hex = Hex.decode(newHexData);
 	}
 
 	public MoneyOrder(byte[] newSN, byte[] newAmount) {
@@ -20,10 +26,11 @@ public class MoneyOrder {
 		// Populate data
 		System.arraycopy(newSN, 0, data, 0, 10);
 		System.arraycopy(newAmount, 0, data, 10, 10);
+		hex = Hex.encode(data);
 	}
-	
+
 	public byte[] getData() {
-		return data;
+		return hex;
 	}
 	
 	public byte[] getSerialNumber() {

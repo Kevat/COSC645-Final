@@ -15,8 +15,8 @@ public class MO_Display {
 
 	protected Shell shell;
 	public String Name;
-	public ArrayList<BigInteger> TextMOs;
-	public ArrayList<BigInteger> GeneratedMOs;
+	public ArrayList<MoneyOrder> TextMOs;
+	public ArrayList<byte []> GeneratedMOs;
 	public ArrayList<RSABlindingParameters> BlindingFactors;
 	public ArrayList<BigInteger> Identity_L_List;
 	private Table table;
@@ -25,7 +25,7 @@ public class MO_Display {
 		Name = input;
 	}
 	
-	public MO_Display(String input, ArrayList<BigInteger> TextMOsIn, ArrayList<BigInteger> GeneratedMOsIn, 
+	public MO_Display(String input, ArrayList<MoneyOrder> TextMOsIn, ArrayList<byte []> GeneratedMOsIn, 
 			ArrayList<BigInteger> Identity_L_List_In, ArrayList<RSABlindingParameters> BlindingFactorsIn){
 		Name = input;
 		TextMOs = TextMOsIn;
