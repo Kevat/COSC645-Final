@@ -29,7 +29,10 @@ public class MainScreen {
 	public ArrayList<BigInteger> TextMOs = new ArrayList<BigInteger>();
 	public ArrayList<BigInteger> GeneratedMOs = new ArrayList<BigInteger>();  
 	public ArrayList<BigInteger> UsedMOs = new ArrayList<BigInteger>();
+	public ArrayList<RSABlindingParameters> BlindingFactors = new ArrayList<RSABlindingParameters>();
 	public ArrayList<BigInteger> Identity_L_List = new ArrayList<BigInteger>();
+	//Stores the index of the MO which was signed
+	Integer signedMOIndex;
 	
 	//Used for bank signing MOs
 	private MoneyOrder m_moneyOrder = null;
@@ -49,7 +52,6 @@ public class MainScreen {
 	protected Shell shell;
 	private Text Alice_Identity;
 	private Text Alice_Balance;
-	private Text Blinding_Factor;
 
 	Label Alice_MO_Number;
 	
@@ -104,7 +106,7 @@ public class MainScreen {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Generate 100 MOs, store into a local variable and show on UI
-				UserAlice.GenerateMOs(Alice_Identity.getText(), Blinding_Factor.getText(), TextMOs, GeneratedMOs, Identity_L_List, m_bank);
+				UserAlice.GenerateMOs(Alice_Identity.getText(), TextMOs, GeneratedMOs, BlindingFactors, Identity_L_List, m_bank);
 				Alice_MO_Number.setText(String.valueOf(TextMOs.size()));
 				//Add blinding factor and send to bank
 			}
@@ -116,14 +118,14 @@ public class MainScreen {
 		btnBankSignsMo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//Should use Alice's Blinding Factor, Ls, and Rs for 99 MOs and validate them
-				//Bank signs the final MO (blinded)
-				RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_bank.getPublic());
-				m_unsignedBlindMO = new MoneyOrder(CommonFunctions.blindMessage(m_unsignedMO.getData(), blindingParams, m_bank.getPublic()));
-				m_signedBlindMO = new MoneyOrder(m_bank.Sign(m_unsignedBlindMO.getData()));
+				//Bank verifies 99 out of the 100 MOs and signs and returns the final MO
+				signedMOIndex = m_bank.VerifyAndSignMOs(GeneratedMOs, TextMOs, BlindingFactors, m_signedBlindMO);
+				
 				//Show validated MOs and the signed MO on UI
+								
+				
 				//Unblind the bank signature
-				m_signedMO = new MoneyOrder(CommonFunctions.unblindMessage(m_signedBlindMO.getData(), blindingParams));
+				//m_signedMO = new MoneyOrder(CommonFunctions.unblindMessage(m_signedBlindMO.getData(), blindingParams));
 				//Verify bank signature
 				boolean sigVerified = m_bank.Verify(m_unsignedMO.getData(), m_signedMO.getData(), m_bank.getPublic());
 			}
@@ -177,14 +179,6 @@ public class MainScreen {
 		Alice_Balance.setBounds(117, 68, 106, 21);
 		Alice_Balance.setText("500");
 		
-		Label lblBlindingFactor = new Label(shell, SWT.NONE);
-		lblBlindingFactor.setBounds(27, 101, 84, 15);
-		lblBlindingFactor.setText("Blinding Factor:");
-		
-		Blinding_Factor = new Text(shell, SWT.BORDER);
-		Blinding_Factor.setBounds(117, 95, 106, 21);
-		Blinding_Factor.setText("12345");
-		
 		Label lblAlicesMos = new Label(shell, SWT.NONE);
 		lblAlicesMos.setBounds(257, 45, 136, 15);
 		lblAlicesMos.setText("Number of Alice's MOs:");
@@ -193,7 +187,7 @@ public class MainScreen {
 		btnClickHereTo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				MO_Display window = new MO_Display("Alice's MOs", TextMOs, GeneratedMOs, Identity_L_List);
+				MO_Display window = new MO_Display("Alice's MOs", TextMOs, GeneratedMOs, Identity_L_List, BlindingFactors);
 				window.open();
 			}
 		});

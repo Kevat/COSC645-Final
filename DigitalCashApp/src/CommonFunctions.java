@@ -1,5 +1,6 @@
 import java.math.BigInteger;
 
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -45,6 +46,7 @@ public class CommonFunctions {
 	
 	public static RSABlindingParameters blindFactor(RSAKeyParameters pubKey) {
 		RSABlindingFactorGenerator blindingFactorGenerator = new RSABlindingFactorGenerator();
+		blindingFactorGenerator.init(pubKey);
 		BigInteger blindingFactor = blindingFactorGenerator.generateBlindingFactor();
 		RSABlindingParameters blindingParams = new RSABlindingParameters(pubKey, blindingFactor);
 		return blindingParams;
@@ -67,7 +69,6 @@ public class CommonFunctions {
 	public static byte[] unblindMessage(byte[] signature, RSABlindingParameters blindingParams) {
 		RSABlindingEngine blindingEngine = new RSABlindingEngine();
 		blindingEngine.init(false, blindingParams);
-		blindingEngine.processBlock(signature, 0, signature.length);
-		return null;
+		return blindingEngine.processBlock(signature, 0, signature.length);
 	}
 }

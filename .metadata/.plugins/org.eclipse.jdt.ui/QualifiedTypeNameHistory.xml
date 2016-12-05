@@ -2,4 +2,6 @@
 <qualifiedTypeNameHistroy>
 <fullyQualifiedTypeName name="java.nio.ByteBuffer"/>
 <fullyQualifiedTypeName name="java.math.BigInteger"/>
+<fullyQualifiedTypeName name="CommonFunctions"/>
+<fullyQualifiedTypeName name="org.bouncycastle.crypto.params.RSABlindingParameters"/>
 </qualifiedTypeNameHistroy>

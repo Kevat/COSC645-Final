@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename field &apos;BlindingFactors_List&apos; in &apos;MainScreen&apos; to &apos;BlindingFactors&apos;&#x0D;&#x0A;- Original project: &apos;DigitalCashApp&apos;&#x0D;&#x0A;- Original element: &apos;MainScreen.BlindingFactors_List&apos;&#x0D;&#x0A;- Renamed element: &apos;MainScreen.BlindingFactors&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" delegate="false" deprecate="false" description="Rename field &apos;BlindingFactors_List&apos;" flags="589830" getter="false" id="org.eclipse.jdt.ui.rename.field" input="/src&lt;{MainScreen.java[MainScreen^BlindingFactors_List" name="BlindingFactors" references="true" setter="false" stamp="1480896352464" textual="false" version="1.0"/>
+</session>

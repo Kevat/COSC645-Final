@@ -5,6 +5,7 @@ import org.eclipse.swt.widgets.Label;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
+import org.bouncycastle.crypto.params.RSABlindingParameters;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -16,6 +17,7 @@ public class MO_Display {
 	public String Name;
 	public ArrayList<BigInteger> TextMOs;
 	public ArrayList<BigInteger> GeneratedMOs;
+	public ArrayList<RSABlindingParameters> BlindingFactors;
 	public ArrayList<BigInteger> Identity_L_List;
 	private Table table;
 	
@@ -23,11 +25,13 @@ public class MO_Display {
 		Name = input;
 	}
 	
-	public MO_Display(String input, ArrayList<BigInteger> TextMOsIn, ArrayList<BigInteger> GeneratedMOsIn, ArrayList<BigInteger> Identity_L_List_In){
+	public MO_Display(String input, ArrayList<BigInteger> TextMOsIn, ArrayList<BigInteger> GeneratedMOsIn, 
+			ArrayList<BigInteger> Identity_L_List_In, ArrayList<RSABlindingParameters> BlindingFactorsIn){
 		Name = input;
 		TextMOs = TextMOsIn;
 		GeneratedMOs = GeneratedMOsIn;
 		Identity_L_List = Identity_L_List_In;
+		BlindingFactors = BlindingFactorsIn;
 	}
 	
 	/**
@@ -85,11 +89,11 @@ public class MO_Display {
 		
 		TableColumn tblclmnLidentity = new TableColumn(table, SWT.NONE);
 		tblclmnLidentity.setWidth(116);
-		tblclmnLidentity.setText("L (identity)");
+		tblclmnLidentity.setText("Blinding Factor");
 
 	    for (int i = 0; i < TextMOs.size(); i++) {
 	        TableItem item = new TableItem(table, SWT.NONE);
-	        item.setText(new String[] { TextMOs.get(i).toString(), GeneratedMOs.get(i).toString(), Identity_L_List.get(i).toString() });
+	        item.setText(new String[] { TextMOs.get(i).toString(), GeneratedMOs.get(i).toString(), BlindingFactors.get(i).getBlindingFactor().toString() });
 	    }
 	}
 }

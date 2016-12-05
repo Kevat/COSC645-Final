@@ -2,14 +2,15 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import org.bouncycastle.crypto.params.RSABlindingParameters;
+
 public class UserAlice {
 	
 	private static Integer Min = 1;
 	private static Integer Max = 100000;
 	
-	public static void GenerateMOs(String aliceIdentity, String blindFactor,
-			ArrayList<BigInteger> TextMOs, ArrayList<BigInteger> GeneratedMOs,
-			ArrayList<BigInteger> Identity_L_List, Bank m_bank) {
+	public static void GenerateMOs(String aliceIdentity, ArrayList<BigInteger> TextMOs, ArrayList<BigInteger> GeneratedMOs,
+			ArrayList<RSABlindingParameters> BlindingFactors_List, ArrayList<BigInteger> Identity_L_List, Bank m_bank) {
 
 		for (int i = 0; i < 100; i++)
 		{
@@ -24,24 +25,16 @@ public class UserAlice {
 			
 			
 			//Get blinding factor
-			BigInteger blindingFactor = BigInteger.ZERO;
-			//Get blinding factor, which has to be a non-zero residue of mod n (from bank's public key)
-			BigInteger residue = BigInteger.ZERO;
-			while (residue.compareTo(BigInteger.ZERO) == 0)
-			{
-				//Get random double multiply by max, convert to big integer
-				//This will get a value between Min and Max + Min as a big integer
-				blindingFactor = BigInteger.valueOf(Min + (long)(Max * Math.random()));
-				//Residue is used to verify that the blinding factor is a non-zero residue
-				residue = blindingFactor.mod(m_bank.getPublic().getModulus());
-			}
+			RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_bank.getPublic());
+						
+			//Store blinding factor in its own array
+			BlindingFactors_List.add(blindingParams);
 			
-			//Store blinding factor in its own array! - TODO
+			//Blind the MO
+			MoneyOrder m_unsignedBlindMO = new MoneyOrder(CommonFunctions.blindMessage(newMO.getData(), blindingParams, m_bank.getPublic()));
 			
-			//Encrypt the blinding factor using the Bank's public key
-			BigInteger generatedMO = new BigInteger(newMO.data);
-			generatedMO = generatedMO.multiply(blindingFactor.modPow(m_bank.getPublic().getExponent(), m_bank.getPublic().getModulus()));
-			GeneratedMOs.add(generatedMO);
+			//Add to list of generated MOs
+			GeneratedMOs.add(new BigInteger(m_unsignedBlindMO.getData()));
 			
 			//Add identity strings??
 			//identity_L_List.add(i);
