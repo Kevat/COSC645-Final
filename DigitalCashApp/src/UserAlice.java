@@ -32,7 +32,7 @@ public class UserAlice {
 			
 			//Blind the MO
 			MoneyOrder m_unsignedBlindMO = new MoneyOrder(CommonFunctions.blindMessage(newMO.getData(), blindingParams, m_bank.getPublic()));
-			
+			MoneyOrder m_unsignedTextMO = new MoneyOrder(CommonFunctions.unblindMessage(m_unsignedBlindMO.getData(), blindingParams));
 			//Add to list of generated MOs
 			GeneratedMOs.add(new BigInteger(m_unsignedBlindMO.getData()));
 			
