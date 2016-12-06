@@ -2,8 +2,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
+
+import javax.swing.SwingConstants;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -18,36 +19,39 @@ import org.eclipse.jface.databinding.swt.DisplayRealm;
 
 public class MainScreen {
 	private DataBindingContext m_bindingContext;
-	private Bank m_bank = new Bank();
 
 	//Variables to show on the screen
 	//Used for generating MOs
 	public ArrayList<MoneyOrder> GeneratedMOs = new ArrayList<MoneyOrder>();
-	public ArrayList<RSABlindingParameters> BlindingFactors = new ArrayList<RSABlindingParameters>();
-	public ArrayList<byte []> BlindedMOs = new ArrayList<byte []>();  
-	public ArrayList<MoneyOrder> UsedMOs = new ArrayList<MoneyOrder>();
-	public ArrayList<BigInteger> Identity_L_List = new ArrayList<BigInteger>();
+	public ArrayList<RSABlindingParameters> BlindParams = new ArrayList<RSABlindingParameters>();  
+	public ArrayList<byte[]> BlindedMOs = new ArrayList<byte[]>();  
 	//Stores the index of the MO which was signed
 	Integer m_signedMOIndex;
 	
 	//Used for bank signing MOs
-	private byte [] m_unsignedMO = null;
-	private byte [] m_signedBlindMO = null;
-	private byte [] m_signedMO = null;
-	RSABlindingParameters m_blindParams = null;
+	private MoneyOrder m_signedBlindMO = null;
+	private MoneyOrder m_unsignedMO = null;
+	private MoneyOrder m_signedMO = null;
 	
-	private MoneyOrder m_moneyOrder = null;
 	//Used to send MO to Bob
 	public String BitVector;
 	
 	//Used to Submit MO
 	public boolean IsMOValid;
 	public String WhoCheated;
-	public int Bob_Bank_Balance = 500;
-	
+	private int m_bobBalance = 500;
+	private int m_aliceBalance = 500;
+
 	protected Shell shell;
 	private Text Alice_Identity;
 	private Text Alice_Balance;
+	private Text Bob_Balance;
+	private Label m_generateStatusLabel;
+	private Label m_bankVerifySignStatusLabel;
+	private Label m_bobVerifySignStatusLabel;
+	private Label m_endStatusLabel;
+	private Label m_overallStatusLabel;
+
 
 	Label Alice_MO_Number;
 	
@@ -89,104 +93,132 @@ public class MainScreen {
 	 */
 	protected void createContents() {
 		shell = new Shell();
-		shell.setSize(552, 547);
+		shell.setSize(552, 647);
 		shell.setText("Digital Cash Application");
 		
 		Label lblDigitalCash = new Label(shell, SWT.NONE);
 		lblDigitalCash.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.BOLD));
-		lblDigitalCash.setBounds(171, 10, 182, 21);
+		lblDigitalCash.setBounds(151, 10, 182, 21);
 		lblDigitalCash.setText("Digital Cash - COSC 645 Final");
 		
-		Button btnAliceSendsMos = new Button(shell, SWT.NONE);
+		Button btnAliceSendsMos = new Button(shell, SWT.CENTER);
 		btnAliceSendsMos.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Generate 100 MOs, store into a local variable and show on UI
-/*				MoneyOrder newMO = UserAlice.GenerateTextMO();
-			
-				//Get blinding factor
-				RSABlindingParameters blindingParams = CommonFunctions.blindFactor(m_bank.getPublic());
-							
-				//Blind the MO
-				byte[] unsignedBlindedMO = CommonFunctions.blindMessage(newMO.getData(), blindingParams, m_bank.getPublic());
-				byte[] signedBlindedMO = m_bank.Sign(unsignedBlindedMO);
-				byte[] signedUnBlindedMO = CommonFunctions.unblindMessage(signedBlindedMO, blindingParams);
-				boolean success = CommonFunctions.Verify(newMO.getData(), signedUnBlindedMO, m_bank.getPublic());
-				if(false == success) {
-					System.out.println("Error");
-				} else {
-					System.out.println("It worked?!");					
+				try {
+					UserAlice.generateMOs(CommonFunctions.AMOUNT, CommonFunctions.NUMBER_MOS, GeneratedMOs, BlindParams);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-*/
-				
-				UserAlice.GenerateMOs(Alice_Identity.getText(), GeneratedMOs, BlindingFactors, BlindedMOs, Identity_L_List, m_bank.getPublic());
 				Alice_MO_Number.setText(String.valueOf(GeneratedMOs.size()));
 				//Add blinding factor and send to bank
+				String successText = CommonFunctions.AMOUNT + " money orders successfully generated";
+				m_generateStatusLabel.setText(successText);
 			}
 		});
-		btnAliceSendsMos.setBounds(171, 142, 203, 34);
-		btnAliceSendsMos.setText("Alice Sends MOs to Bank");
+		btnAliceSendsMos.setBounds(151, 142, 275, 34);
+		btnAliceSendsMos.setText("Alice Generates MOs; Sends to Bank");
+		
+		m_generateStatusLabel = new Label(shell, SWT.CENTER);
+		m_generateStatusLabel.setBounds(151, 192, 275, 34);
+		m_generateStatusLabel.setText("");
 		
 		Button btnBankSignsMo = new Button(shell, SWT.NONE);
 		btnBankSignsMo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Bank verifies 99 out of the 100 MOs and signs and returns the final MO
-				ArrayList<Integer> toSignMO = new ArrayList<Integer>();
-				m_signedBlindMO = m_bank.VerifyAndSignMOs(GeneratedMOs, BlindedMOs, BlindingFactors, toSignMO);
-				m_signedMOIndex = toSignMO.get(0);
-				m_unsignedMO = GeneratedMOs.get(m_signedMOIndex).getData();
-				m_blindParams = new RSABlindingParameters(BlindingFactors.get(m_signedMOIndex).getPublicKey(), BlindingFactors.get(m_signedMOIndex).getBlindingFactor());
-				
-				//Show validated MOs and the signed MO on UI
-								
-				
-				//Unblind the bank signature
-				m_signedMO = CommonFunctions.unblindMessage(m_signedBlindMO, m_blindParams);
-				//Verify bank signature
-				boolean sigVerified = CommonFunctions.Verify(m_unsignedMO, m_signedMO, m_bank.getPublic());
-				if(false == sigVerified) {
-					System.out.println("Error");
-				} else {
-					System.out.println("It worked?!");					
+				ArrayList<Integer> indexMO = new ArrayList<Integer>();
+				try {
+					m_signedBlindMO = Bank.VerifyAndSignMOs(CommonFunctions.AMOUNT, GeneratedMOs, BlindParams, indexMO);
+					m_aliceBalance = (m_aliceBalance - CommonFunctions.AMOUNT);
+					Alice_Balance.setText(Integer.toString(m_aliceBalance));
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
+				m_signedMOIndex = indexMO.get(0);
+				m_unsignedMO = GeneratedMOs.get(m_signedMOIndex);
+				//Show validated MOs and the signed MO on UI
+				String successText = "Bank verified " + (CommonFunctions.AMOUNT-1) + " money orders and signed the last successfully; Alice's account adjusted accordingly";
+				m_bankVerifySignStatusLabel.setText(successText);
 			}
 		});
-		btnBankSignsMo.setBounds(171, 258, 203, 34);
-		btnBankSignsMo.setText("Bank Signs MO and returns to Alice");
+		btnBankSignsMo.setBounds(151, 238, 275, 34);
+		btnBankSignsMo.setText("Bank Verifies; Sends signed MO to Alice");
 		
-		Button btnAliceSendsMo = new Button(shell, SWT.NONE);
+		m_bankVerifySignStatusLabel = new Label(shell, SWT.CENTER);
+		m_bankVerifySignStatusLabel.setBounds(151, 288, 275, 34);
+		m_bankVerifySignStatusLabel.setText("");
+		
+		Button btnAliceSendsMo = new Button(shell, SWT.CENTER);
 		btnAliceSendsMo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Alice sends MO to Bob
+				//Unblind the bank signature
+				m_signedMO = m_signedBlindMO;
+				m_signedMO.setSignature(CommonFunctions.unblindSignature(m_signedBlindMO.getSignature(), BlindParams.get(m_signedMOIndex)));
+				//Verify bank signature
+				boolean sigVerified = Bank.verifySignature(m_unsignedMO.getEncrypted(), m_signedMO.getSignature());
+				if(false == sigVerified) {
+					System.out.println("Signature not verified");
+				}
+
 				//Bob sends bit vector to Alice
-//				SendMO.Send();
 				//Alice sends the corresponding Ls and Rs to Bob
 				//Show what Bob receives on UI
+				String successText = "Bob verified money order successfully";
+				m_bobVerifySignStatusLabel.setText(successText);
 			}
 		});
-		btnAliceSendsMo.setBounds(171, 348, 203, 34);
-		btnAliceSendsMo.setText("Alice Sends MO to Bob");
+		btnAliceSendsMo.setBounds(151, 331, 275, 34);
+		btnAliceSendsMo.setText("Alice sends to Bob; Bob verifies Bank signature");
 		
-		Button btnBobSendsMo = new Button(shell, SWT.NONE);
+		m_bobVerifySignStatusLabel = new Label(shell, SWT.CENTER);
+		m_bobVerifySignStatusLabel.setBounds(151, 381, 275, 34);
+		m_bobVerifySignStatusLabel.setText("");
+		
+		Button btnBobSendsMo = new Button(shell, SWT.CENTER);
 		btnBobSendsMo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//Send MO received from Alice to Bank
+				boolean success = Bank.process(m_signedMO);
 				//Decrypt MO
 				//Validate that the same MO was not used before
 				//Validate that the same serial number was not used before
 				//If same serial number was used before, try to find Alice using Ls and Rs
 				//Show output on UI
-				m_moneyOrder.Submit();
+				if(false == success) {
+					System.out.println("Tisk, tisk ... someone is trying to cheat the bank!");
+				} else {
+					m_bobBalance = (m_bobBalance + CommonFunctions.AMOUNT);
+					Bob_Balance.setText(Integer.toString(m_bobBalance));
+				}
+				//Show output on UI
+				String successText = "Money order successfully validated; Bob's account adjusted accodingly";
+				m_endStatusLabel.setText(successText);
+				
+				successText = "SUCCESS!!";
+				m_overallStatusLabel.setText(successText);
 			}
 		});
-		btnBobSendsMo.setBounds(171, 443, 203, 34);
+		btnBobSendsMo.setBounds(151, 429, 275, 34);
 		btnBobSendsMo.setText("Bob Sends MO to Bank");
 		
+		m_endStatusLabel = new Label(shell, SWT.CENTER);
+		m_endStatusLabel.setBounds(151, 479, 275, 34);
+		m_endStatusLabel.setText("");
+
+		m_overallStatusLabel = new Label(shell, SWT.CENTER);
+		m_overallStatusLabel.setBounds(151, 531, 275, 34);
+		m_overallStatusLabel.setText("");
+		
 		Label lblNewLabel = new Label(shell, SWT.NONE);
-		lblNewLabel.setBounds(27, 45, 84, 15);
+		lblNewLabel.setBounds(27, 43, 84, 15);
 		lblNewLabel.setText("Alice's Identity:");
 		
 		Alice_Identity = new Text(shell, SWT.BORDER);
@@ -194,12 +226,20 @@ public class MainScreen {
 		Alice_Identity.setText("12345");
 		
 		Label lblAlicesBalance = new Label(shell, SWT.NONE);
-		lblAlicesBalance.setBounds(27, 74, 84, 15);
+		lblAlicesBalance.setBounds(27, 71, 84, 15);
 		lblAlicesBalance.setText("Alice's Balance:");
 		
 		Alice_Balance = new Text(shell, SWT.BORDER);
 		Alice_Balance.setBounds(117, 68, 106, 21);
-		Alice_Balance.setText("500");
+		Alice_Balance.setText(Integer.toString(m_aliceBalance));
+
+		Label lblBobsBalance = new Label(shell, SWT.NONE);
+		lblBobsBalance.setBounds(27, 97, 84, 15);
+		lblBobsBalance.setText("Bob's Balance:");
+		
+		Bob_Balance = new Text(shell, SWT.BORDER);
+		Bob_Balance.setBounds(117, 94, 106, 21);
+		Bob_Balance.setText(Integer.toString(m_bobBalance));
 		
 		Label lblAlicesMos = new Label(shell, SWT.NONE);
 		lblAlicesMos.setBounds(257, 45, 136, 15);
@@ -209,7 +249,7 @@ public class MainScreen {
 		btnClickHereTo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				MO_Display window = new MO_Display("Alice's MOs", GeneratedMOs, BlindedMOs, Identity_L_List, BlindingFactors);
+				MO_Display window = new MO_Display("Alice's MOs", GeneratedMOs, BlindParams);
 				window.open();
 			}
 		});
@@ -220,8 +260,8 @@ public class MainScreen {
 		Alice_MO_Number.setBounds(395, 45, 55, 15);
 		Alice_MO_Number.setText("0");
 		initDataBindings();
-		
 	}
+	
 	protected void initDataBindings() {
 		if(null != m_bindingContext) {
 			m_bindingContext.dispose();

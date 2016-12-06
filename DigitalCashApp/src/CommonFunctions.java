@@ -1,82 +1,53 @@
 import java.math.BigInteger;
+import java.security.SecureRandom;
 
-import org.bouncycastle.crypto.CryptoException;
-import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.engines.RSABlindingEngine;
-import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.generators.RSABlindingFactorGenerator;
+import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSABlindingParameters;
+import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.signers.PSSSigner;
 
 public class CommonFunctions {
 
-	public static int GetIntFromLetter(char letter)
-	{
-		return Character.getNumericValue(letter);
-	}
+	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+	private static final BigInteger SIGNING_EXP = BigInteger.valueOf(3);
+	private static final int RSA_KEY_BITS = 2048;
+	public static final int AMOUNT = 100;
+	public static final int NUMBER_MOS = 100;
 	
-	public static int GetIntFromString(String input)
-	{
-		int output = -1;
+	static AsymmetricCipherKeyPair generateKeyPair() {
 		try {
-			output = Integer.parseInt(input);
-		} catch (NumberFormatException e) {
-			// do something here
+			RSAKeyPairGenerator generator = new RSAKeyPairGenerator();
+			generator.init(new RSAKeyGenerationParameters(SIGNING_EXP, SECURE_RANDOM, RSA_KEY_BITS, 12));
+			return generator.generateKeyPair();
+		} catch(Exception e) {
+			throw new RuntimeException("Error generating keys!");
 		}
-		return output;
 	}
 	
-	public static char GetLetterFromInt(int input)
-	{
-		char output = '0';
+	public static RSABlindingParameters generateParams(RSAKeyParameters pubKey){
+		RSABlindingFactorGenerator blindGenerator = new RSABlindingFactorGenerator();
+		blindGenerator.init(pubKey);
+		BigInteger blindFactor = blindGenerator.generateBlindingFactor();
+		return new RSABlindingParameters(pubKey, blindFactor);
+	}
+	
+    public static byte [] blindData(byte[] msg, RSABlindingParameters blindParams) throws Exception {
+        PSSSigner signer = new PSSSigner(new RSABlindingEngine(), new SHA1Digest(), 20);
+        signer.init(true, blindParams);
+        signer.update(msg, 0, msg.length);
+        byte[] sig = signer.generateSignature();
+        return sig;
+    }
 		
-		try {
-			output = Integer.toString(input).charAt(0);
-		} catch (IndexOutOfBoundsException e) {
-			// do something here
-		}
-		return output;
-	}
-	
-	public static String GetStringFromInt(int input)
-	{
-		return Integer.toString(input);
-	}
-	
-	public static RSABlindingParameters blindFactor(RSAKeyParameters pubKey) {
-		RSABlindingFactorGenerator blindingFactorGenerator = new RSABlindingFactorGenerator();
-		blindingFactorGenerator.init(pubKey);
-		BigInteger blindingFactor = blindingFactorGenerator.generateBlindingFactor();
-		RSABlindingParameters blindingParams = new RSABlindingParameters(pubKey, blindingFactor);
-		return blindingParams;
-	}
-	
-	public static byte[] blindMessage(byte[] message, RSABlindingParameters blindingParams, RSAKeyParameters pubKey) {
-		byte[] blindedMsg = null;
-		PSSSigner blindSigner = new PSSSigner(new RSABlindingEngine(), new SHA1Digest(), 20);
-		blindSigner.init(true, blindingParams);
-		blindSigner.update(message, 0, message.length);
-		try {
-			blindedMsg = blindSigner.generateSignature();
-		} catch (DataLengthException | CryptoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return blindedMsg;
-	}
-	
-	public static byte[] unblindMessage(byte[] signature, RSABlindingParameters blindingParams) {
-		RSABlindingEngine blindingEngine = new RSABlindingEngine();
-		blindingEngine.init(false, blindingParams);
-		return blindingEngine.processBlock(signature, 0, signature.length);
-	}
-	
-	public static boolean Verify(byte[] message, byte[] signature, RSAKeyParameters pubKey) {
-		PSSSigner signer = new PSSSigner(new RSAEngine(), new SHA1Digest(), 20);
-		signer.init(false,  pubKey);
-		signer.update(message, 0, message.length);
-		return signer.verifySignature(signature);
-	}
+    public static byte[] unblindSignature(byte [] signature, RSABlindingParameters blindParams) {
+        RSABlindingEngine blindingEngine = new RSABlindingEngine();
+        blindingEngine.init(false, blindParams);
+        byte[] s = blindingEngine.processBlock(signature, 0, signature.length);
+        return s;
+    }
 }

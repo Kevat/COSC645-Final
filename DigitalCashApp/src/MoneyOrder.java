@@ -1,47 +1,50 @@
-import org.bouncycastle.util.encoders.Hex;
+import java.util.List;
+import java.util.UUID;
+
+import org.bouncycastle.crypto.engines.RSAEngine;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
 
 public class MoneyOrder {
-	byte[] serialNumber = new byte[10];
-	byte[] amount = new byte[10];
-	private byte[] data = new byte[20];
-	byte[] hex = null;
+	private String serialNumber;
+	
+	private List<String> leftCommitments;
+	private List<String> rightCommitments;
+	
+	private byte [] encrypted;
+	private byte [] signature;
 
-	public MoneyOrder(byte[] newHexData) {
-		hex = newHexData;
-		// Populate data
-		byte [] tmpData = Hex.decode(newHexData);
-		System.arraycopy(tmpData, 0, data, 0, 20);
-		// Populate serialNumber
-		System.arraycopy(newHexData, 0, serialNumber, 0, 10);
-		// Populate amount
-		System.arraycopy(newHexData, 10, amount, 0, 10);
-		hex = Hex.decode(newHexData);
+	public MoneyOrder() {
+		this.serialNumber = UUID.randomUUID().toString();
 	}
 
-	public MoneyOrder(byte[] newSN, byte[] newAmount) {
-		// Populate serialNumber
-		System.arraycopy(newSN, 0, serialNumber, 0, 10);
-		// Populate amount
-		System.arraycopy(newAmount, 0, amount, 0, 10);
-		// Populate data
-		System.arraycopy(newSN, 0, data, 0, 10);
-		System.arraycopy(newAmount, 0, data, 10, 10);
-		hex = Hex.encode(data);
+	public MoneyOrder(String serialNumber) {
+		this.serialNumber = serialNumber;
 	}
 
-	public byte[] getData() {
-		return hex;
+	public byte[] getEncrypted() {
+		return this.encrypted;
 	}
 	
-	public byte[] getSerialNumber() {
-		return serialNumber;
+	public String getSerialNumber() {
+		return this.serialNumber;
 	}
 
-	public byte[] getAmount() {
-		return amount;
+	public byte[] getSignature() {
+		return this.signature;
 	}
 
-	public void Submit() {
+	public void setSignature(byte[] signature) {
+		this.signature = signature;
+	}
+
+	public void encrypt(int amount, RSAKeyParameters pubKey) {
+		StringBuilder sb = new StringBuilder(this.serialNumber);
+		sb.append("~");
+		sb.append(Integer.toString(amount));
+		byte [] inputData = sb.toString().getBytes();
 		
+		RSAEngine encryptEngine = new RSAEngine();
+		encryptEngine.init(true, pubKey);
+		this.encrypted = encryptEngine.processBlock(inputData, 0, inputData.length);
 	}
 }
