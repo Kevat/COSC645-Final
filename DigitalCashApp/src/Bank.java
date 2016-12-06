@@ -111,4 +111,47 @@ public class Bank {
 		//If same serial number was used before, try to find Alice using Ls and Rs
 		return true;
 	}
+	
+//added in process - Andy	
+	public Integer ReceiveMoneyOrderRequest(int agreedAmount, ArrayList<MoneyOrder> encryptedMOs){
+
+		Integer MOToSign = (int)((encryptedMOs.size() - 1) * Math.random());
+
+	    return MOToSign;
+	}//end receiveMoneyOrderRequest
+
+
+	public MoneyOrder UnblindMoneyOrderRequest(ArrayList<RSABlindingParameters> blindParams, ArrayList<Integer> indexMO){
+
+
+		 return m_signedMO;
+
+
+	}
+
+
+
+
+/*
+	public MoneyOrder unblindMoneyOrderRequest(blindingFactors[], int amount){
+
+	int i = 0;
+
+	for (i = 0; i < blindingFactors.length; i++){
+	    if (!moneyOrderRequest[i].unblind(amount){
+	    //if amount of money order request does not equal unblinded money order, fraud attempt
+	        return void moneyOrder
+	    }
+
+	//if all 99 money orders are good, sign money order and add to moneyOrdersOut
+
+
+
+	}
+
+
+	}//end unblind  */
+
+
+	
 }
