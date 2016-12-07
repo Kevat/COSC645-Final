@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -11,6 +12,7 @@ import org.bouncycastle.crypto.signers.PSSSigner;
 public class Bank {
 	private static AsymmetricCipherKeyPair m_keys = CommonFunctions.generateKeyPair();
 	private static MoneyOrder m_signedMO = null;
+	
 		
 	public Bank() {
 	}
@@ -28,10 +30,9 @@ public class Bank {
 		MoneyOrder toSignBlindMO = null;
 		RSABlindingParameters toUseBlindParams = null;
 
-		int number = encryptedMOs.size();
-		Integer MOToSign = (int)((number - 1) * Math.random());
+		Integer MOToSign = (int)((encryptedMOs.size() - 1) * Math.random());
 		indexMO.add(MOToSign);
-		for(int i = 0; i < number; ++i){
+		for(int i = 0; i < encryptedMOs.size(); ++i){
 			if(i != MOToSign) {
 				boolean status = VerifyMO(encryptedMOs.get(i).getEncrypted(), agreedAmount);
 				if(false == status) {
@@ -113,17 +114,54 @@ public class Bank {
 	}
 	
 //added in process - Andy	
-	public Integer ReceiveMoneyOrderRequest(int agreedAmount, ArrayList<MoneyOrder> encryptedMOs){
+//
+//  Why would Alice send the Bank all the blinding factors, trusting the bank to only unblind 99 of the 100 money orders?	
+	
+	private static ArrayList<MoneyOrder> MoneyOrderRequestReceived;
+	private static ArrayList<MoneyOrder> MoneyOrderOutstanding;
+	
+	private class MoneyOrderRequestLog{
+		ArrayList<MoneyOrder> moneyOrderRequests;
+		String moneyOrderRequestNumber;
+		
+		MoneyOrderRequestLog(ArrayList<MoneyOrder> moneyOrderRequests, String moneyOrderRequestNumber){
+			this.moneyOrderRequests = moneyOrderRequests;
+			this.moneyOrderRequestNumber = moneyOrderRequestNumber;
+		}
+	
+	private ArrayList<MoneyOrderRequestLog> moneyOrderRequestLogArray;
+	
+	
+	
+	public Integer[] ReceiveMoneyOrderRequest(int agreedAmount, ArrayList<MoneyOrder> encryptedMOs){
 
 		Integer MOToSign = (int)((encryptedMOs.size() - 1) * Math.random());
+		Integer[] requestResponse = new Integer[2];  //position 0 is money order that will be signed and position 1 is request number
+		AtomicInteger requestNumber;
 
-	    return MOToSign;
+		requestResponse[0] = MOToSign;
+		//requestResponse[1] = requestNumber.getAndIncrement();
+		requestResponse[1] = requestNumber.addAndGet((int)(10 * Math.random()));		
+		
+		MoneyOrderRequestLog moneyOrderRequestLog = new MoneyOrderRequestLog(encryptedMOs, requestResponse[1].toString()); //should request number be randomly generated or sequential?
+		
+		
+		moneyOrderRequestLogArray.add(moneyOrderRequestLog);
+		
+
+	    return requestResponse;
+	    //Alice sends Bank an array of blinding factors with blinding factor at the index of the money order to be signed voided and the request number.
+	    
 	}//end receiveMoneyOrderRequest
 
+	
+
+	
 
 	public MoneyOrder UnblindMoneyOrderRequest(ArrayList<RSABlindingParameters> blindParams, ArrayList<Integer> indexMO){
 
 
+		MoneyOrderOutstanding.add(m_signedMO);
 		 return m_signedMO;
 
 
