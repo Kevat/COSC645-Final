@@ -33,7 +33,7 @@ public class UserAlice {
     	byte[] results = new byte[4];
     	byte[] RBytes = new byte[4];
     	
-    	for (int i = 0; i < bitVector.length(); i++)
+    	for (int i = 0; i < 4; i++)
     	{
     		//R = L xor with identity
     		RBytes[i] = (byte)(0xff & (int)AliceIdentityBits[i] ^ (int)LBytes[i]);

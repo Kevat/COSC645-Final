@@ -229,58 +229,30 @@ public class Bank {
 		else if (isSameSerialNumber)
 		{
 			//If not valid and the same MO was not used before, use Ls and Rs to find identity string
-			byte[] LBytes = new byte[4];
-			byte[] RBytes = new byte[4];
-			byte[] IDBytes = new byte[4];
 			
 			for (int i = 0; i < m_usedSerialNumbers.size(); i++) {
 				if (m_usedSerialNumbers.get(i).equals(m_signedMO.getSerialNumber())) {
 					//For each matching serial number
+					String cheaterID = "";
 					for (int j = 0; j < 4; j++)
 					{
-						if (m_previousBitVectors.get(i).get(j)){
-							//If the bit is 0, then get L, else get R
-							LBytes[j] = m_previousIdentities.get(i)[j];
+						boolean previousBit = m_previousBitVectors.get(i).get(j);
+						boolean currentBit = bobBitVector.get(j);
+						byte IDByte;
+						if (previousBit != currentBit){
+							IDByte = (byte)(0xff & (int)m_previousIdentities.get(i)[j] ^ (int)m_aliceIDReturned[j]);
+							cheaterID += Integer.toBinaryString(IDByte & 0xFF).replace(' ', '0');
 						}
 						else {
-							RBytes[j] = m_previousIdentities.get(i)[j];
+							cheaterID += "XXXXXXX";
 						}
-						
-						//Use the current bit vector for getting Ls and Rs
-						if (bobBitVector.get(j)) {
-							LBytes[j] = m_aliceIDReturned[j];
-						}
-						else {
-							RBytes[j] = m_aliceIDReturned[j];
-						}
+						cheaterID +="-";
 					}
+
+					m_statusLabel.setText("The same serial number was used twice! The ID of the offending user is " + cheaterID);
 				}
 			}
 			
-			for (int i =0; i < 4; i++) {
-				//If L and R are known, then you can get ID
-				if (LBytes[i] != 0 && RBytes[i] != 0)
-				{
-					IDBytes[i] = (byte)(0xff & (int)RBytes[i] ^ (int)LBytes[i]);
-				}
-			}
-		
-			//Get ID string, only where not 0
-			String cheaterID = "";
-			for (int i = 0; i < 4; i++)
-			{
-				if (IDBytes[i] != 0)
-				{
-					cheaterID += Integer.toBinaryString(IDBytes[i] & 0xFF).replace(' ', '0');
-				}
-				else
-				{
-					cheaterID += "XXXXXXX";
-				}
-				cheaterID +="-";
-			}
-			
-			m_statusLabel.setText("The same serial number was used twice! The ID of the offending user is " + cheaterID);
 			isValid = false;
 		}
 		else {
