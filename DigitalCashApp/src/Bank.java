@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
@@ -8,6 +10,7 @@ import org.bouncycastle.crypto.params.RSABlindingParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 import org.bouncycastle.crypto.signers.PSSSigner;
+import org.eclipse.swt.widgets.Label;
 
 public class Bank {
 	private static AsymmetricCipherKeyPair m_keys = CommonFunctions.generateKeyPair();
@@ -191,5 +194,113 @@ public class Bank {
 	}//end unblind  */
 
 	}
-	
+
+	public static boolean process(MoneyOrder m_signedMO, byte[] m_aliceIDReturned, BitSet bobBitVector,
+			ArrayList<String> m_usedSerialNumbers, ArrayList<byte[]> m_usedMoneyOrders,
+			ArrayList<byte[]> m_previousIdentities, Label m_statusLabel, ArrayList<BitSet> m_previousBitVectors) {
+
+		//First, validate the MO (encryption, signature, etc.)
+		boolean isValid = Bank.process(m_signedMO);
+
+		//If not valid, then check if same MO was used before
+		boolean isSameMO = false;
+		for (int i = 0; i < m_usedMoneyOrders.size(); i++)
+		{
+			//When checking if the MO is same, check the encrypted MO AND the ID strings
+			if (Arrays.equals(m_signedMO.getEncrypted(), m_usedMoneyOrders.get(i)) && Arrays.equals(m_aliceIDReturned, m_previousIdentities.get(i))) {
+				isSameMO = true;
+			}
+		}
+		
+		boolean isSameSerialNumber = false;
+		for (int i = 0; i < m_usedSerialNumbers.size(); i++)
+		{
+			if (m_signedMO.getSerialNumber().equals(m_usedSerialNumbers.get(i))) {
+				isSameSerialNumber = true;
+			}
+		}
+		
+		if (isSameMO)
+		{
+			//Bob cheated
+			m_statusLabel.setText("The same MO was used twice! Bob cheated!");
+			isValid = false;
+		}
+		else if (isSameSerialNumber)
+		{
+			//If not valid and the same MO was not used before, use Ls and Rs to find identity string
+			byte[] LBytes = new byte[4];
+			byte[] RBytes = new byte[4];
+			byte[] IDBytes = new byte[4];
+			
+			for (int i = 0; i < m_usedSerialNumbers.size(); i++) {
+				if (m_usedSerialNumbers.get(i).equals(m_signedMO.getSerialNumber())) {
+					//For each matching serial number
+					for (int j = 0; j < 4; j++)
+					{
+						if (m_previousBitVectors.get(i).get(j)){
+							//If the bit is 0, then get L, else get R
+							LBytes[j] = m_previousIdentities.get(i)[j];
+						}
+						else {
+							RBytes[j] = m_previousIdentities.get(i)[j];
+						}
+						
+						//Use the current bit vector for getting Ls and Rs
+						if (bobBitVector.get(j)) {
+							LBytes[j] = m_aliceIDReturned[j];
+						}
+						else {
+							RBytes[j] = m_aliceIDReturned[j];
+						}
+					}
+				}
+			}
+			
+			for (int i =0; i < 4; i++) {
+				//If L and R are known, then you can get ID
+				if (LBytes[i] != 0 && RBytes[i] != 0)
+				{
+					IDBytes[i] = (byte)(0xff & (int)RBytes[i] ^ (int)LBytes[i]);
+				}
+			}
+		
+			//Get ID string, only where not 0
+			String cheaterID = "";
+			for (int i = 0; i < 4; i++)
+			{
+				if (IDBytes[i] != 0)
+				{
+					cheaterID += Integer.toBinaryString(IDBytes[i] & 0xFF).replace(' ', '0');
+				}
+				else
+				{
+					cheaterID += "XXXXXXX";
+				}
+				cheaterID +="-";
+			}
+			
+			m_statusLabel.setText("The same serial number was used twice! The ID of the offending user is " + cheaterID);
+			isValid = false;
+		}
+		else {
+			//No one cheated
+			//Add MO to usedMOs
+			m_usedMoneyOrders.add(m_signedMO.getEncrypted());
+			
+			//Add serial number to used serial numbers
+			m_usedSerialNumbers.add(m_signedMO.getSerialNumber());
+			
+			//Add identity to previous identity
+			m_previousIdentities.add(m_aliceIDReturned);
+			
+			//Add bit vector to previously used bit vectors
+			m_previousBitVectors.add(bobBitVector);
+
+			m_statusLabel.setText("Money order successfully validated; Bob's account adjusted accodingly");
+			isValid = true;
+		}
+		
+		return isValid;
+	}
 }

@@ -28,10 +28,9 @@ public class UserAlice {
         }
     }
     
-    public static byte[] GetIdentityFromBitVector(byte[] AliceIdentityBits, BitSet bitVector)
+    public static byte[] GetIdentityFromBitVector(byte[] AliceIdentityBits, byte[] LBytes, BitSet bitVector)
     {
     	byte[] results = new byte[4];
-    	byte[] LBytes = ByteBuffer.allocate(4).putInt((int)Math.round(2000000 * Math.random())).array();
     	byte[] RBytes = new byte[4];
     	
     	for (int i = 0; i < bitVector.length(); i++)
