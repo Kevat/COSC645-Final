@@ -39,7 +39,6 @@ public class MainScreen {
 	public static BitSet m_bobBitVector;
 	public static byte[] AliceIdentityBits;
 	public static String aliceIDAsBits = "";
-	public static byte[] LBytes;
 	public static String LBytesAsBits = "";
 	
 	//Used to Submit MO
@@ -84,12 +83,6 @@ public class MainScreen {
 						aliceIDAsBits += Integer.toBinaryString(AliceIdentityBits[i] & 0xFF).replace(' ', '0') + "-";
 					}
 
-					LBytes = ByteBuffer.allocate(4).putInt((int)Math.round(2000000 * Math.random())).array();
-					for (int i = 0; i < 4; i++)
-					{
-						LBytesAsBits += Integer.toBinaryString(LBytes[i] & 0xFF).replace(' ', '0') + "-";
-					}
-					
 					MainScreen window = new MainScreen();
 					window.open();
 				} catch (Exception e) {
@@ -158,13 +151,12 @@ public class MainScreen {
 			public void widgetSelected(SelectionEvent e) {
 				//Generate 100 MOs, store into a local variable and show on UI
 				try {
-					UserAlice.generateMOs(CommonFunctions.AMOUNT, CommonFunctions.NUMBER_MOS, GeneratedMOs, BlindParams);
+					UserAlice.generateMOs(CommonFunctions.AMOUNT, CommonFunctions.NUMBER_MOS, GeneratedMOs, BlindParams, AliceIdentityBits);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				Alice_MO_Number.setText(String.valueOf(GeneratedMOs.size()));
-				Identity_L.setText(LBytesAsBits);
 				//Add blinding factor and send to bank
 				String successText = CommonFunctions.AMOUNT + " money orders successfully generated";
 				m_generateStatusLabel.setText(successText);
@@ -187,6 +179,13 @@ public class MainScreen {
 					m_signedBlindMO = Bank.VerifyAndSignMOs(CommonFunctions.AMOUNT, GeneratedMOs, BlindParams, indexMO);
 					m_aliceBalance = (m_aliceBalance - CommonFunctions.AMOUNT);
 					Alice_Balance.setText(Integer.toString(m_aliceBalance));
+					byte[] leftCommitment = m_signedBlindMO.getLeftCommitments();
+					
+					for (int i = 0; i < 4; i++)
+					{
+						LBytesAsBits += Integer.toBinaryString(leftCommitment[i] & 0xFF).replace(' ', '0') + "-";
+					}
+					Identity_L.setText(LBytesAsBits);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -231,7 +230,7 @@ public class MainScreen {
 				Bob_Bit_Vector_Label.setText(bitVectorStr);
 				
 				/// Get Alice's identity from bit vector
-				m_aliceIDReturned = UserAlice.GetIdentityFromBitVector(AliceIdentityBits, LBytes, m_bobBitVector);
+				m_aliceIDReturned = UserAlice.GetIdentityFromBitVector(AliceIdentityBits, m_signedMO.getLeftCommitments(), m_signedMO.getRightCommitments(), m_bobBitVector);
 				
 				
 				//Verify bank signature

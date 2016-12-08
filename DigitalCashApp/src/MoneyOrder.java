@@ -7,8 +7,8 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 public class MoneyOrder {
 	private String serialNumber;
 	
-	private List<String> leftCommitments;
-	private List<String> rightCommitments;
+	private byte[] leftCommitments;
+	private byte[] rightCommitments;
 	
 	private byte [] encrypted;
 	private byte [] signature;
@@ -21,6 +21,22 @@ public class MoneyOrder {
 		this.serialNumber = serialNumber;
 	}
 
+	public byte[] getLeftCommitments() {
+		return leftCommitments;
+	}
+
+	public void setLeftCommitments(byte[] commitment) {
+		leftCommitments = commitment;
+	}
+
+	public byte[] getRightCommitments() {
+		return rightCommitments;
+	}
+
+	public void setRightCommitments(byte[] commitment) {
+		rightCommitments = commitment;
+	}
+	
 	public byte[] getEncrypted() {
 		return this.encrypted;
 	}
