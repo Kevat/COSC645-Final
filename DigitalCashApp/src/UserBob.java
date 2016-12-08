@@ -18,7 +18,7 @@ public class UserBob {
 	        return Bank.verifySignature(verifyMO.getEncrypted(), verifyMO.getSignature());
     }
     
-    public BitSet getBitVector(int length)
+    public static BitSet getBitVector(int length)
     {
     	BitSet returnSet = new BitSet(length);
     	for (int i = 0; i < length; i++)

@@ -44,6 +44,7 @@ public class MainScreen {
 	public String WhoCheated;
 	private int m_bobBalance = 500;
 	private int m_aliceBalance = 500;
+	private byte[] m_aliceIDReturned;
 
 	protected Shell shell;
 	private Text Alice_Identity;
@@ -172,10 +173,13 @@ public class MainScreen {
 					System.out.println("Signature not verified");
 				}
 
-				//Bob sends bit vector to Alice
-				//Alice sends the corresponding Ls and Rs to Bob
-				//Show what Bob receives on UI
-				String successText = "Bob verified money order successfully";
+				/// Get Bob's bit vector
+				BitSet bobBitVector = UserBob.getBitVector(4);
+				
+				/// Get Alice's identity from bit vector
+				m_aliceIDReturned = UserAlice.GetIdentityFromBitVector(AliceIdentityBits, bobBitVector);
+								
+				String successText = "Bob received the money order and the ID!";
 				m_bobVerifySignStatusLabel.setText(successText);
 			}
 		});
