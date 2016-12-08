@@ -141,7 +141,7 @@ public class Bank {
 
 		requestResponse[0] = MOToSign;
 		//requestResponse[1] = requestNumber.getAndIncrement();
-		requestResponse[1] = requestNumber.addAndGet((int)(10 * Math.random()));		
+		//requestResponse[1] = requestNumber.addAndGet((int)(10 * Math.random()));		
 		
 		MoneyOrderRequestLog moneyOrderRequestLog = new MoneyOrderRequestLog(encryptedMOs, requestResponse[1].toString()); //should request number be randomly generated or sequential?
 		
@@ -190,6 +190,6 @@ public class Bank {
 
 	}//end unblind  */
 
-
+	}
 	
 }

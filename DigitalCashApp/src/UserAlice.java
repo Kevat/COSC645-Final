@@ -1,4 +1,6 @@
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.BitSet;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.params.RSABlindingParameters;
@@ -24,5 +26,17 @@ public class UserAlice {
             RSABlindingParameters tmpBlindParams = CommonFunctions.generateParams(Bank.getPublic());
             blindParams.add(tmpBlindParams);
         }
+    }
+    
+    public byte[] GetIdentityFromBitVector(BitSet bitVector, String identityString)
+    {
+    	byte[] results = new byte[3];
+    	byte[] Lbytes = ByteBuffer.allocate(4).putInt((int)Math.round(2000000 * Math.random())).array();
+    	
+    	for (int i = 0; i < bitVector.length(); i++)
+    	{
+    		
+    	}
+    	return results;
     }
 }

@@ -2,7 +2,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.BitSet;
 
 import javax.swing.SwingConstants;
 
@@ -35,6 +37,7 @@ public class MainScreen {
 	
 	//Used to send MO to Bob
 	public String BitVector;
+	public static byte[] AliceIdentityBits;
 	
 	//Used to Submit MO
 	public boolean IsMOValid;
@@ -64,6 +67,8 @@ public class MainScreen {
 		Realm.runWithDefault(DisplayRealm.getRealm(display), new Runnable() {
 			public void run() {
 				try {
+					//Store Alice's identity
+					AliceIdentityBits = ByteBuffer.allocate(4).putInt(1234567).array();
 					MainScreen window = new MainScreen();
 					window.open();
 				} catch (Exception e) {
